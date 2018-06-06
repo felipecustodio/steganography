@@ -1,3 +1,6 @@
+# Big images and video folder
+frames/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

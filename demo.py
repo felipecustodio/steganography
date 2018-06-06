@@ -1,6 +1,7 @@
 import numpy as np
 import imageio
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
+from matplotlib import animation
 
 original = np.asarray(imageio.imread("rogerinho.png", as_gray=False, pilmode="RGB"))
 secret = np.asarray(imageio.imread("renan.png", as_gray=False, pilmode="RGB"))
@@ -8,6 +9,15 @@ secret = np.asarray(imageio.imread("renan.png", as_gray=False, pilmode="RGB"))
 merged = np.copy(original)
 
 # merge images
+
+# animation
+counter = 0
+frames = 0
+plt.axis('off')
+plt.imshow(merged, interpolation='none')
+plt.savefig("frames/merge/" + str(frames) + ".png")
+
+print("Merging images...")
 for i in range(original.shape[0]):
     for j in range(original.shape[1]):
         # get binary representation of pixel (original)
@@ -28,9 +38,26 @@ for i in range(original.shape[0]):
         r, g, b = rgb
         merged[i][j] = [int(r, 2), int(g, 2), int(b, 2)]
 
+    # animation
+    counter += 1
+    if (counter >= 10):
+        frames += 1
+        plt.axis('off')
+        plt.imshow(merged, interpolation='none')
+        plt.savefig("frames/merge/" + str(frames) + ".png")
+        counter = 0
+
 # unmerge images
 unmerged = np.copy(merged)
 
+# animation
+counter = 0
+frames = 0
+plt.axis('off')
+plt.imshow(unmerged, interpolation='none')
+plt.savefig("frames/unmerge/" + str(frames) + ".png")
+
+print("Unmerging images...")
 for i in range(merged.shape[0]):
     for j in range(merged.shape[1]):
         # get RGB
@@ -43,8 +70,18 @@ for i in range(merged.shape[0]):
         r, g, b = rgb
         unmerged[i][j] = [int(r, 2), int(g, 2), int(b, 2)]
 
+    # animation
+    counter += 1
+    if (counter >= 10):
+        frames += 1
+        plt.axis('off')
+        plt.imshow(unmerged, interpolation='none')
+        plt.savefig("frames/unmerge/" + str(frames) + ".png")
+        counter = 0
+
 
 # plot images
+print("Plotting final results...")
 dpi = 80.0
 margin = 0.05
 xpixels, ypixels = original.shape[0], original.shape[1]
@@ -60,3 +97,5 @@ plt.savefig("plots/demo_merged.png", dpi=100)
 plt.axis('off')
 ax.imshow(unmerged, interpolation='none')
 plt.savefig("plots/demo_unmerged.png", dpi=100)
+
+print("Finished")
