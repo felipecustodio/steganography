@@ -63,6 +63,8 @@ For this demo, we used **4 bits** of each image. If the visual impact on the fin
 
 
 The final pixel will look like this:
+
+
 |  Most Significant Bits   |  Least Significant Bits   |
 | --- | --- |
 |   Most significant bits from ORIGINAL  |  Most significant bits from SECRET   |
