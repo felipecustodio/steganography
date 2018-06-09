@@ -4,21 +4,26 @@ from matplotlib import pyplot as plt
 from matplotlib import animation
 from subprocess import call
 
+
+# load images
+print("Loading images...")
 original = np.asarray(imageio.imread("images/forest.png", as_gray=False, pilmode="RGB"))
 secret = np.asarray(imageio.imread("images/doggo.png", as_gray=False, pilmode="RGB"))
 
+# copy original image for merging
 merged = np.copy(original)
 
+# plotting parameters
+dpi = 80.0
+margin = 0.05
+xpixels, ypixels = original.shape[0], original.shape[1]
+figsize = (1 + margin) * ypixels / dpi, (1 + margin) * xpixels / dpi
+fig = plt.figure(figsize=figsize, dpi=dpi)
+ax = fig.add_axes([margin, margin, 1 - 2*margin, 1 - 2*margin])
+
 # merge images
-
-# animation
-counter = 0
-frames = 0
-plt.axis('off')
-plt.imshow(merged, interpolation='none')
-plt.savefig("frames/merge/" + str(frames) + ".png")
-
 print("Merging images...")
+
 for i in range(original.shape[0]):
     for j in range(original.shape[1]):
         # get binary representation of pixel (original)
@@ -39,81 +44,65 @@ for i in range(original.shape[0]):
         r, g, b = rgb
         merged[i][j] = [int(r, 2), int(g, 2), int(b, 2)]
 
-    # animation
-    counter += 1
-    if (counter >= 10):
-        frames += 1
-        plt.axis('off')
-        plt.imshow(merged, interpolation='none')
-        plt.savefig("frames/merge/" + str(frames) + ".png")
-        counter = 0
-
-# unmerge images
-unmerged = np.copy(merged)
-
-# animation
-counter = 0
-frames = 0
-plt.axis('off')
-plt.imshow(unmerged, interpolation='none')
-plt.savefig("frames/unmerge/" + str(frames) + ".png")
-
-print("Unmerging images...")
-for i in range(merged.shape[0]):
-    for j in range(merged.shape[1]):
-        # get RGB
-        r, g, b = merged[i][j]
-        r, g, b = ('{0:08b}'.format(r), '{0:08b}'.format(g), '{0:08b}'.format(b))
-        # extract last 4 bits (assuming we know it's 4 bits)
-        # concatenate remaining bits as 0
-        rgb = (r[4:] + "0000", g[4:] + "0000", b[4:] + "0000")
-        # convert it back to int
-        r, g, b = rgb
-        unmerged[i][j] = [int(r, 2), int(g, 2), int(b, 2)]
-
-    # animation
-    counter += 1
-    if (counter >= 10):
-        frames += 1
-        plt.axis('off')
-        plt.imshow(unmerged, interpolation='none')
-        plt.savefig("frames/unmerge/" + str(frames) + ".png")
-        counter = 0
-
-
-# plot images
-print("Plotting final results...")
-dpi = 80.0
-margin = 0.05
-xpixels, ypixels = original.shape[0], original.shape[1]
-
-figsize = (1 + margin) * ypixels / dpi, (1 + margin) * xpixels / dpi
-fig = plt.figure(figsize=figsize, dpi=dpi)
-ax = fig.add_axes([margin, margin, 1 - 2*margin, 1 - 2*margin])
-
+# save merged image
+print("Plotting merged image...")
 plt.axis('off')
 ax.imshow(merged, interpolation='none')
 plt.savefig("plots/merged.png", dpi=100)
+plt.clf()
 
-plt.axis('off')
-ax.imshow(unmerged, interpolation='none')
-plt.savefig("plots/unmerged.png", dpi=100)
+# extraction
+rmse = []
+compressed = []
 
-print("Generating GIFs...")
-call('ffmpeg -i frames/merge/%d.png plots/merge.gif', shell=True)
-call('ffmpeg -i frames/merge/%d.png plots/unmerge.gif', shell=True)
+# apply different levels of compression
+print("Compressing merged image...")
+compressed.append(np.copy(merged)) # original image
+for i in range(10, 110, 10):
+    # compress and store (i = % of quality for jpg compression)
+    call("convert -resize 800x800 -quality "+str(i)+"% plots/merged.png plots/compressed_" + str(i) + ".jpg", shell=True)
+    compressed.append(np.asarray(imageio.imread("plots/compressed_" + str(i) + ".jpg", as_gray=False, pilmode="RGB")))
 
-print("Calculating RMSE...")
-error = ((merged - original) ** 2)
-error = np.sum(error)
-error *= 1 / (merged.shape[0] * merged.shape[1])
-error = np.sqrt(error)
-print("Merged vs Original: {0:.4f}".format(error))
+# unmerge images
+for i in range(0, 110, 10):
+    print("Extracting image - Compression at {}%...".format(i))
+    merged = np.copy(compressed[int((i/10))])
+    unmerged = np.copy(compressed[int((i/10))])
 
-error = ((unmerged - secret) ** 2)
-error = np.sum(error)
-error *= 1 / (unmerged.shape[0] * unmerged.shape[1])
-error = np.sqrt(error)
-print("Extracted vs Secret: {0:.4f}".format(error))
+    for x in range(merged.shape[0]):
+        for y in range(merged.shape[1]):
+            # get RGB
+            r, g, b = merged[x][y]
+            r, g, b = ('{0:08b}'.format(r), '{0:08b}'.format(g), '{0:08b}'.format(b))
+            # extract last 4 bits (assuming we know it's 4 bits)
+            # concatenate remaining bits as 0
+            rgb = (r[4:] + "0000", g[4:] + "0000", b[4:] + "0000")
+            # convert it back to int
+            r, g, b = rgb
+            unmerged[x][y] = [int(r, 2), int(g, 2), int(b, 2)]
+
+    # save extracted image
+    print("Plotting extracted image...")
+    plt.axis('off')
+    plt.imshow(unmerged, interpolation='none')
+    plt.savefig("plots/extracted_" + str(int(i)) + ".png", dpi=100)
+    plt.clf()
+
+    # calculate RMSE (extracted vs original secret)
+    print("Calculating RMSE...")
+    error = ((unmerged - secret) ** 2)
+    error = np.sum(error)
+    error *= 1 / (merged.shape[0] * merged.shape[1])
+    error = np.sqrt(error)
+    rmse.append(error)
+
+
+print("Plotting RMSE vs Compression")
+plt.plot(range(0, 110, 10), rmse)
+plt.xlabel('RMSE')
+plt.ylabel('Quality of JPEG compression (%)')
+plt.title('RMSE (extracted vs original secret) x JPEG compression quality')
+plt.savefig("plots/rmse.png", dpi=100)
+plt.clf()
 
 print("Finished")
