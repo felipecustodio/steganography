@@ -6,7 +6,6 @@ Studies on steganography algorithms and how robust they are when facing image co
   <img src="http://ForTheBadge.com/images/badges/made-with-python.svg"/>
 </p>
 
-<hr>
 
 |   Students |
 | --- |
