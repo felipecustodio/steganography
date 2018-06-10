@@ -1,10 +1,12 @@
-# Studies on Steganography
+<h1 align="center">Studies on Steganography</h1>
+
+<p align="center">
+  <img src="http://ForTheBadge.com/images/badges/made-with-python.svg"/>
+</p>
 
 Studies on steganography algorithms and how robust they are when facing image compression. College assignment for **SCC0251 - Digital Image Processing @ ICMC - USP**.
 
-<p align="left">
-  <img src="http://ForTheBadge.com/images/badges/made-with-python.svg"/>
-</p>
+
 
 
 |   Students |
@@ -13,23 +15,24 @@ Studies on steganography algorithms and how robust they are when facing image co
 
 | [![felipecustodio](https://avatars0.githubusercontent.com/u/4261743?v=4&s=80)](https://github.com/felipecustodio) | [![carolesj](https://avatars0.githubusercontent.com/u/12941891?&v=4&s=80)](https://github.com/carolesj) |
 |:-----------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------:|
-|                                [Felipe Custódio](https://github.com/felipecustodio)                                |                           [Caroline Jesuíno](https://github.com/carolesj)                           |
+|                               [Felipe Custódio](https://github.com/felipecustodio)                                |                             [Caroline Jesuíno](https://github.com/carolesj)                             |
+| 9442688                                                                                                                  |      9293925                                                                                                   |
 
 
 Table of Contents
 =================
 
    * [Studies on Steganography](#studies-on-steganography)
-      * [LSB Steganography](#lsb-steganography)
+   * [Table of Contents](#table-of-contents)
+   * [LSB Steganography](#lsb-steganography)
       * [Merging](#merging)
-      * [Unmerging](#unmerging)
-      * [Animation](#animation)
-      * [Complex images](#complex-images)
+      * [Extracting the hidden image](#extracting-the-hidden-image)
+      * [Working with more complex images](#working-with-more-complex-images)
+      * [JPG Compression](#jpg-compression)
+   * [Next steps](#next-steps)
 
-<hr>
 
-
-## LSB Steganography
+# LSB Steganography
 
 The code for this demo is here: [demo.py](https://github.com/felipecustodio/steganography/blob/master/demo.py)
 
@@ -154,7 +157,7 @@ This means this technique is probably useful when hiding simple images on very c
 Let's try that later! Now, let's **extract** the hidden image.
 
 
-## Unmerging
+## Extracting the hidden image
 
 
 All we have to do is the inverse process.
@@ -192,9 +195,6 @@ The extracted image looks like this:
 There's Renan! We can see the image lost some visual quality, but the results are impressive for such a simple technique. Also, the RMSE is bigger than the one for the merged image, meaning it's not always a good metric for visual impact. Although more pixels were affected here, we can **see** the hidden image in the merged one.
 
 
-## Animation
-
-
 Let's see the process in action:
 
 
@@ -204,7 +204,7 @@ Merge           |  Extract
 
 
 
-## Complex images
+## Working with more complex images
 
 
 Remember when we speculated that complex images would probably be less affected visually, so the results would be better? Here's another example: let's hide a dog in a forest.
@@ -241,3 +241,27 @@ Again, the visual quality drop was expected, but we can still identify the dog a
 
 
 **RMSE** = 14.5167
+
+
+## JPG Compression
+
+
+![](plots/compression.gif)
+
+![](plots/extraction.gif)
+
+![](plots/compressed_10.jpg)
+
+![](plots/extracted_10.png)
+
+# Next steps
+
+
+The **TODO** list is here: [GitHub Issues](https://github.com/felipecustodio/steganography/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc)
+
+
+* Try more steganography techniques.
+    * The way everything is implemented, we just need to plug a different method instead of LSB steganography. The Python script has all the steps for plotting the images, animations and testing against JPG compression.
+
+* Improve the algorithm to work with images of different sizes
+    * We can easily use padding with zeroes, for example.
